@@ -7,7 +7,9 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.NotFound;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name="tbl_currencies")
@@ -21,6 +23,9 @@ public class Currency {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long Id;
     @NotEmpty(message = "El nombre no debe ser vacío")
+    @NotNull(message="El nombre no debe ser null")
+    @NotBlank(message="Currency name is required")
+    @Column(updatable = false, unique = true)
     private String name;
     @NotEmpty(message = "El symbol no debe ser vacío")
     private String symbol;
