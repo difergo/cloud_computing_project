@@ -24,14 +24,12 @@ public class Quote {
     private String name;
     @NotEmpty(message = "El symbol no debe ser vacío")
     private String symbol;
-    @Positive(message = "El stock debe ser mayor de cero")
+    @Positive(message = "El precio debe ser mayor a cero")
     private double price;
     private Date lastUpdate;
-
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="currency_id")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Currency currency;
-
 }

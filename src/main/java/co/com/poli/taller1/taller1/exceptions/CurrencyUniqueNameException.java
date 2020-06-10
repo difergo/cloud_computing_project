@@ -8,5 +8,4 @@ public class CurrencyUniqueNameException extends RuntimeException {
     public CurrencyUniqueNameException(String message) {
         super(message);
     }
-
 }

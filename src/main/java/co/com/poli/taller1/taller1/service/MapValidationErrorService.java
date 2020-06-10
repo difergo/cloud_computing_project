@@ -6,30 +6,27 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class MapValidationErrorService {
 
-    /**
-     *@return si result tiene errores entonces devuelve un Map con la
-     *estructura "atributo":"error". De lo contrario null
-     */
     public ResponseEntity<?> MapValidationService(BindingResult result) {
-
-        // en caso de error hago que el json q me devuelve tenga la estructura "field": "errormessage"
         if (result.hasErrors()) {
 
+            //Java 7
+            /*
             Map<String, String> errorMap = new HashMap<>();
-
             for (FieldError error : result.getFieldErrors()) {
                 errorMap.put(error.getField(), error.getDefaultMessage());
-            }
+            }*/
+            //Java 8
+            Map<String, String> errorMap = result.getFieldErrors().stream()
+                    .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
 
-            return new ResponseEntity<Map<String, String>>(errorMap, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorMap, HttpStatus.BAD_REQUEST);
         }
-
         return null;
     }
 
