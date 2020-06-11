@@ -12,7 +12,4 @@ public interface QuoteService {
     public Quote updateQuote(Quote quote);
     public Quote deleteQuote(Long id);
     public List<Quote> findByCurrency(Currency currency);
-
-
-
 }

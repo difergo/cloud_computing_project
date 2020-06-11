@@ -22,17 +22,24 @@ public class CurrencyServiceImpl implements CurrencyService {
         if (currency.getName() != null) {
             currency.setName(currency.getName().toUpperCase());
         }
+        currency.setId(0);
         try {
             return currencyRepository.save(currency);
-        } catch (CurrencyUniqueNameException e) {
-            throw new CurrencyUniqueNameException("Currency name: " + currency.getName() + " is already in use.");
+        } catch (Exception e) {
+            throw new CurrencyUniqueNameException("Currency Name/Symbol is already in use.");
         }
     }
 
     @Override
-    public Currency getCurrency(Long id) {
+    public Currency getCurrencyById(Long id) {
         return currencyRepository.findById(id).orElse(null);
     }
 
+    @Override
+    public Currency getCurrencyByName(String name) { return currencyRepository.findByName(name); }
 
+    @Override
+    public List<Currency> listAllCurrencies() {
+        return currencyRepository.findAll();
+    }
 }

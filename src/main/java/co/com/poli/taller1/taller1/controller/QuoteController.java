@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
-import javax.validation.constraints.Positive;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,7 +51,7 @@ public class QuoteController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createQuote(@Valid @Positive @RequestBody Quote quote, BindingResult result){
+    public ResponseEntity<?> createQuote(@Valid @RequestBody Quote quote, BindingResult result){
         ResponseEntity<?> errorMap = validationErrorService.MapValidationService(result);
         if(errorMap != null) return errorMap;
         else {
