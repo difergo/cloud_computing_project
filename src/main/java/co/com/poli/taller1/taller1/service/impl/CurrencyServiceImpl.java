@@ -54,9 +54,26 @@ public class CurrencyServiceImpl implements CurrencyService {
     public void updateRanks(Currency currency, double valorEnEuros) {
         List<Currency> currencies = findAllOrderByRank();
         int previousRank = 0;
+        boolean found = false;
+        if (currency.getRank() > 0) {
+            for (int i = 0; i < currencies.size(); i++) {
+                if (currencies.get(i).getRank() > 0) {
+                    if (currencies.get(i).getId() == currency.getId()) {
+                        currencies.get(i).setRank(0);
+                        found = true;
+                    } else {
+                        if (found) {
+                            currencies.get(i).setRank(currencies.get(i).getRank() - 1);
+                            currencyRepository.save(currencies.get(i));
+                        }
+                    }
+                }
+            }
+        }
+
         for (int i = 0; i < currencies.size(); i++) {
             if (currencies.get(i).getRank() > 0) {
-                if (valorEnEuros < getsEuroValueFor(currency)) {
+                if (valorEnEuros < getsEuroValueFor(currencies.get(i))) {
                     currencies.get(i).setRank(currencies.get(i).getRank() + 1);
                     currencyRepository.save(currencies.get(i));
                 } else {
@@ -72,21 +89,21 @@ public class CurrencyServiceImpl implements CurrencyService {
 
     private double getsEuroValueFor(Currency currency) {
         double euroValue = 0;
-        for (Quote q : currency.getQuoteList()) {
-            switch (q.getName()) {
+
+            switch (currency.getQuoteList().get(0).getName()) {
                 case "DOLAR":
-                    euroValue = q.getPrice() / 1.25;
+                    euroValue = currency.getQuoteList().get(0).getPrice() / 1.25;
                     break;
 
                 case "LIBRA":
-                    euroValue = q.getPrice() / 1.2;
+                    euroValue = currency.getQuoteList().get(0).getPrice() / 1.2;
                     break;
 
                 case "EURO":
-                    euroValue = q.getPrice();
+                    euroValue = currency.getQuoteList().get(0).getPrice() * 1;
                     break;
             }
-        }
+
         return euroValue;
     }
 }

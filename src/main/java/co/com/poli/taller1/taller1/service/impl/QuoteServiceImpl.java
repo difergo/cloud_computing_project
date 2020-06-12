@@ -36,6 +36,7 @@ public class QuoteServiceImpl implements QuoteService {
     @Override
     public void createQuote(Quote quote) {
         double valorEuro = 0;
+        boolean correctName = true;
 
         if (quote.getName() != null) {
             quote.setName(quote.getName().toUpperCase());
@@ -56,37 +57,42 @@ public class QuoteServiceImpl implements QuoteService {
 
             default:
                 resultMap = new ResponseEntity<String>("El Nombre " + quote.getName() + " no es valido", HttpStatus.BAD_REQUEST);
+                correctName = false;
         }
 
-        Currency currency = currencyService.getCurrencyById(quote.getCurrency().getId());
-        boolean alreadyExists = false;
-        for (Quote q : currency.getQuoteList()) {
-            switch (q.getName()) {
-                case "DOLAR":
-                    alreadyExists = "DOLAR".equals(quote.getName());
-                    q.setPrice(valorEuro / 1.25);
-                    break;
+        if(correctName) {
+            Currency currency = currencyService.getCurrencyById(quote.getCurrency().getId());
+            boolean alreadyExists = false;
+            for (Quote q : currency.getQuoteList()) {
+                switch (q.getName()) {
+                    case "DOLAR":
+                        alreadyExists = "DOLAR".equals(quote.getName());
+                        q.setPrice(valorEuro * 1.25);
+                        break;
 
-                case "LIBRA":
-                    alreadyExists = "LIBRA".equals(quote.getName());
-                    q.setPrice(valorEuro / 1.2);
-                    break;
+                    case "LIBRA":
+                        alreadyExists = "LIBRA".equals(quote.getName());
+                        q.setPrice(valorEuro * 1.2);
+                        break;
 
-                case "EURO":
-                    alreadyExists = "EURO".equals(quote.getName());
-                    q.setPrice(valorEuro);
-                    break;
+                    case "EURO":
+                        alreadyExists = "EURO".equals(quote.getName());
+                        q.setPrice(valorEuro);
+                        break;
+                }
+                quoteRepository.save(q);
             }
-            quoteRepository.save(q);
+
+            Quote saveQuote;
+            System.out.println(alreadyExists);
+            if (!alreadyExists) {
+                saveQuote = quoteRepository.save(quote);
+                resultMap = new ResponseEntity<Quote>(saveQuote, HttpStatus.CREATED);
+            } else {
+                resultMap = new ResponseEntity<Quote>(quote, HttpStatus.ACCEPTED);
+            }
+            currencyService.updateRanks(currencyService.getCurrencyById(quote.getCurrency().getId()), valorEuro);
         }
-        Quote saveQuote;
-        if (!alreadyExists) {
-            saveQuote = quoteRepository.save(quote);
-            resultMap = new ResponseEntity<Quote>(saveQuote, HttpStatus.CREATED);
-        } else {
-            resultMap = new ResponseEntity<Quote>(quote, HttpStatus.ACCEPTED);
-        }
-        currencyService.updateRanks(currency, valorEuro);
     }
 
     @Override
@@ -99,6 +105,7 @@ public class QuoteServiceImpl implements QuoteService {
     public Quote updateQuote(Quote quote) {
         return null;
     }
+
 
     @Override
     public Quote deleteQuote(Long id) {
