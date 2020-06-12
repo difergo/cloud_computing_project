@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
+import java.util.Calendar;
 import java.util.List;
 
 @Service
@@ -40,6 +42,7 @@ public class QuoteServiceImpl implements QuoteService {
 
         if (quote.getName() != null) {
             quote.setName(quote.getName().toUpperCase());
+            quote.setSymbol(quote.getSymbol().toUpperCase());
         }
 
         switch (quote.getName()) {
@@ -60,6 +63,7 @@ public class QuoteServiceImpl implements QuoteService {
                 correctName = false;
         }
 
+        Date date = quote.getLastUpdate();
         if(correctName) {
             Currency currency = currencyService.getCurrencyById(quote.getCurrency().getId());
             boolean alreadyExists = false;
@@ -68,23 +72,25 @@ public class QuoteServiceImpl implements QuoteService {
                     case "DOLAR":
                         alreadyExists = "DOLAR".equals(quote.getName());
                         q.setPrice(valorEuro * 1.25);
+                        q.setLastUpdate(date);
                         break;
 
                     case "LIBRA":
                         alreadyExists = "LIBRA".equals(quote.getName());
                         q.setPrice(valorEuro * 1.2);
+                        q.setLastUpdate(date);
                         break;
 
                     case "EURO":
                         alreadyExists = "EURO".equals(quote.getName());
                         q.setPrice(valorEuro);
+                        q.setLastUpdate(date);
                         break;
                 }
                 quoteRepository.save(q);
             }
 
             Quote saveQuote;
-            System.out.println(alreadyExists);
             if (!alreadyExists) {
                 saveQuote = quoteRepository.save(quote);
                 resultMap = new ResponseEntity<Quote>(saveQuote, HttpStatus.CREATED);
