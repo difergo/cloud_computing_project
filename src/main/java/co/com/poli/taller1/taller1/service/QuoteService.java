@@ -2,6 +2,7 @@ package co.com.poli.taller1.taller1.service;
 
 import co.com.poli.taller1.taller1.domain.Currency;
 import co.com.poli.taller1.taller1.domain.Quote;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
@@ -12,4 +13,5 @@ public interface QuoteService {
     public Quote updateQuote(Quote quote);
     public Quote deleteQuote(Long id);
     public List<Quote> findByCurrency(Currency currency);
+    public ResponseEntity<String> getErrorMap();
 }

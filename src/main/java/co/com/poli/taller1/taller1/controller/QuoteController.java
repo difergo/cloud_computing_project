@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,16 +35,16 @@ public class QuoteController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Quote>> getListquotes(@RequestParam(name = "currency_id", required = false) Long currencyId){
+    public ResponseEntity<List<Quote>> getListquotes(@RequestParam(name = "currency_id", required = false) Long currencyId) {
         List<Quote> quotes = new ArrayList<>();
-        if(currencyId==null){
+        if (currencyId == null) {
             quotes = quoteService.listAllQuotes();
-            if(quotes.isEmpty()){
+            if (quotes.isEmpty()) {
                 return ResponseEntity.noContent().build();
             }
-        }else{
+        } else {
             quotes = quoteService.findByCurrency(Currency.builder().id(currencyId).build());
-            if(quotes.isEmpty()){
+            if (quotes.isEmpty()) {
                 return ResponseEntity.noContent().build();
             }
         }
@@ -51,12 +52,17 @@ public class QuoteController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createQuote(@Valid @RequestBody Quote quote, BindingResult result){
+    public ResponseEntity<?> createQuote(@Valid @RequestBody Quote quote, BindingResult result) {
         ResponseEntity<?> errorMap = validationErrorService.MapValidationService(result);
-        if(errorMap != null) return errorMap;
+        if (errorMap != null) return errorMap;
         else {
             Quote quoteCreated = quoteService.createQuote(quote);
-            return ResponseEntity.status(HttpStatus.CREATED).body(quoteCreated);
+
+            if (quoteCreated == null) {
+                return quoteService.getErrorMap();
+            } else {
+                return ResponseEntity.status(HttpStatus.CREATED).body(quoteCreated);
+            }
         }
     }
 }
