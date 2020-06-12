@@ -54,15 +54,11 @@ public class QuoteController {
     @PostMapping
     public ResponseEntity<?> createQuote(@Valid @RequestBody Quote quote, BindingResult result) {
         ResponseEntity<?> errorMap = validationErrorService.MapValidationService(result);
-        if (errorMap != null) return errorMap;
-        else {
-            Quote quoteCreated = quoteService.createQuote(quote);
-
-            if (quoteCreated == null) {
-                return quoteService.getErrorMap();
-            } else {
-                return ResponseEntity.status(HttpStatus.CREATED).body(quoteCreated);
-            }
+        if (errorMap != null) {
+            return errorMap;
+        } else {
+            quoteService.createQuote(quote);
+            return quoteService.getResultMap();
         }
     }
 }

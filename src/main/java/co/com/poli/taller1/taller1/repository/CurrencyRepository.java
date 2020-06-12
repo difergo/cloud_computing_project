@@ -11,5 +11,8 @@ public interface CurrencyRepository extends JpaRepository<Currency,Long> {
 
     @Query("SELECT c FROM Currency c WHERE c.name = ?1")
     Currency findByName(String name);
+
+    @Query("SELECT c FROM Currency c ORDER by c.rank ASC")
+    List<Currency> finAllOrderByRank();
 }
 

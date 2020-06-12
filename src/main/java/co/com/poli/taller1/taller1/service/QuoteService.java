@@ -9,9 +9,9 @@ import java.util.List;
 public interface QuoteService {
     public List<Quote>  listAllQuotes();
     public Quote getQuote(Long id);
-    public Quote createQuote(Quote quote);
+    public void createQuote(Quote quote);
     public Quote updateQuote(Quote quote);
     public Quote deleteQuote(Long id);
     public List<Quote> findByCurrency(Currency currency);
-    public ResponseEntity<String> getErrorMap();
+    public ResponseEntity<?> getResultMap();
 }

@@ -36,10 +36,57 @@ public class CurrencyServiceImpl implements CurrencyService {
     }
 
     @Override
-    public Currency getCurrencyByName(String name) { return currencyRepository.findByName(name); }
+    public Currency getCurrencyByName(String name) {
+        return currencyRepository.findByName(name);
+    }
+
+    @Override
+    public List<Currency> findAllOrderByRank() {
+        return currencyRepository.finAllOrderByRank();
+    }
 
     @Override
     public List<Currency> listAllCurrencies() {
         return currencyRepository.findAll();
+    }
+
+    @Override
+    public void updateRanks(Currency currency, double valorEnEuros) {
+        List<Currency> currencies = findAllOrderByRank();
+        int previousRank = 0;
+        for (int i = 0; i < currencies.size(); i++) {
+            if (currencies.get(i).getRank() > 0) {
+                if (valorEnEuros < getsEuroValueFor(currency)) {
+                    currencies.get(i).setRank(currencies.get(i).getRank() + 1);
+                    currencyRepository.save(currencies.get(i));
+                } else {
+                    previousRank = currencies.get(i).getRank();
+                }
+            }
+        }
+
+        currency.setRank(previousRank + 1);
+        currencyRepository.save(currency);
+
+    }
+
+    private double getsEuroValueFor(Currency currency) {
+        double euroValue = 0;
+        for (Quote q : currency.getQuoteList()) {
+            switch (q.getName()) {
+                case "DOLAR":
+                    euroValue = q.getPrice() / 1.25;
+                    break;
+
+                case "LIBRA":
+                    euroValue = q.getPrice() / 1.2;
+                    break;
+
+                case "EURO":
+                    euroValue = q.getPrice();
+                    break;
+            }
+        }
+        return euroValue;
     }
 }

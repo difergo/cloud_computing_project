@@ -15,7 +15,7 @@ import java.util.List;
 @Service
 public class QuoteServiceImpl implements QuoteService {
 
-    ResponseEntity<String> errorMap;
+    ResponseEntity<?> resultMap;
 
     @Autowired
     private CurrencyService currencyService;
@@ -34,11 +34,13 @@ public class QuoteServiceImpl implements QuoteService {
     }
 
     @Override
-    public Quote createQuote(Quote quote) {
-        double valorEuro;
-        if(quote.getName() != null) {
+    public void createQuote(Quote quote) {
+        double valorEuro = 0;
+
+        if (quote.getName() != null) {
             quote.setName(quote.getName().toUpperCase());
         }
+
         switch (quote.getName()) {
             case "DOLAR":
                 valorEuro = quote.getPrice() / 1.25;
@@ -53,47 +55,44 @@ public class QuoteServiceImpl implements QuoteService {
                 break;
 
             default:
-                errorMap = new ResponseEntity<String>("El Nombre " + quote.getName() + " no es valido", HttpStatus.BAD_REQUEST);
-                return null;
+                resultMap = new ResponseEntity<String>("El Nombre " + quote.getName() + " no es valido", HttpStatus.BAD_REQUEST);
         }
 
         Currency currency = currencyService.getCurrencyById(quote.getCurrency().getId());
-        for(Quote q:currency.getQuoteList()){
+        boolean alreadyExists = false;
+        for (Quote q : currency.getQuoteList()) {
             switch (q.getName()) {
                 case "DOLAR":
-                    q.setPrice(quote.getPrice() / 1.25);
+                    alreadyExists = "DOLAR".equals(quote.getName());
+                    q.setPrice(valorEuro / 1.25);
                     break;
 
                 case "LIBRA":
-                    q.setPrice(quote.getPrice() / 1.2);
+                    alreadyExists = "LIBRA".equals(quote.getName());
+                    q.setPrice(valorEuro / 1.2);
                     break;
 
                 case "EURO":
+                    alreadyExists = "EURO".equals(quote.getName());
                     q.setPrice(valorEuro);
                     break;
             }
+            quoteRepository.save(q);
         }
-
-        if() {
-            Quote saveQuote = quoteRepository.save(quote);
+        Quote saveQuote;
+        if (!alreadyExists) {
+            saveQuote = quoteRepository.save(quote);
+            resultMap = new ResponseEntity<Quote>(saveQuote, HttpStatus.CREATED);
+        } else {
+            resultMap = new ResponseEntity<Quote>(quote, HttpStatus.ACCEPTED);
         }
-
-        //updateRanks(quote.getId());
-
-
-
-        return saveQuote;
+        currencyService.updateRanks(currency, valorEuro);
     }
 
-
-
-
-
-    public ResponseEntity<String> getErrorMap(){
-        return errorMap;
+    @Override
+    public ResponseEntity<?> getResultMap() {
+        return resultMap;
     }
-
-
 
 
     @Override

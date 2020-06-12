@@ -10,4 +10,6 @@ public interface CurrencyService {
     public Currency createCurrency(Currency currency);
     public Currency getCurrencyById(Long id);
     public Currency getCurrencyByName(String name);
+    public List<Currency> findAllOrderByRank();
+    public void updateRanks(Currency currency, double valorEuro);
 }
